@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta DNS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+            margin-top: 20px;
+        }
+
+        #dnsForm {
+            margin: 20px auto;
+            max-width: 400px;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            align-items: center;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input[type="text"] {
+            width: 90%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        button[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        #result {
+            margin: 20px auto;
+            min-width: 600px;
+            max-width: 50%;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            text-align: left;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Consulta DNS</h1>
+    <form id="dnsForm">
+        <label for="domain">Domínio:</label>
+        <input type="text" id="domain" required>
+        <button type="submit">Consultar</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById("dnsForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+        
+            const domain = document.getElementById("domain").value;
+        
+            fetch(`http://127.0.0.1:8080/dns?domain=${domain}`)
+                .then((response) => {
+                    if (response.status === 404) {
+                        return {
+                            error: true,
+                            errorCode: 404
+                        };
+                    }
+                    if (!response.ok) {
+                        throw new Error(`Erro na resposta do servidor DNS. Código de resposta: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    const resultElement = document.getElementById("result");
+                    resultElement.innerHTML = "";
+        
+                    if (data.error) {
+                        if (data.errorCode === 404) {
+                            resultElement.innerHTML = `<p><strong>Informações não disponíveis para o domínio pesquisado.</strong></p>`;
+                        } else {
+                            resultElement.innerHTML = `<p>Erro na resposta do servidor DNS. Código de resposta: ${data.errorCode}</p>`;
+                        }
+                    } else {
+                        let infoHTML = `<p><strong>Informações:</strong></p>
+                                          <ul>`;
+        
+                        data.records.forEach((record) => {
+                            infoHTML += `<li><strong>Tipo de Registro:</strong> ${record.recordType}</li>
+                                         <li><strong>Nome do Domínio:</strong> ${record.domainName}</li>
+                                         <li><strong>Dados:</strong> ${record.data}</li>`;
+                            
+                            if (record.ipv4) {
+                                infoHTML += `<li><strong>Endereço IPv4:</strong> ${record.ipv4}</li>`;
+                            }
+        
+                            if (record.ipv6) {
+                                infoHTML += `<li><strong>Endereço IPv6:</strong> ${record.ipv6}</li>`;
+                            }
+                        });
+        
+                        infoHTML += `</ul>`;
+                        resultElement.innerHTML = infoHTML;
+                    }
+                })
+                .catch((error) => {
+                    console.error("Erro ao fazer a solicitação:", error);
+                });
+        });        
+    </script>
+</body>
+
+</html>

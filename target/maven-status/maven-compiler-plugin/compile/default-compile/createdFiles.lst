@@ -1,0 +1,3 @@
+com\example\udp\DNSRecord.class
+com\example\udp\DNSLookupServlet.class
+com\example\udp\DNSLookupServer.class
