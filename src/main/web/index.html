@@ -6,82 +6,109 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consulta DNS</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&family=Righteous&display=swap');
+
         body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
+            background-image: linear-gradient(to bottom, #CCDBFD, #E2EAFC, #EDF2FB, white);
+            background-repeat: no-repeat;
+            background-attachment: fixed;
             margin: 0;
             padding: 0;
             text-align: center;
+            font-family: 'Poppins', sans serif;
         }
 
         h1 {
-            color: #333;
+            font-family: 'Righteous', cursive;
+            color: #1B4965;
             margin-top: 20px;
         }
 
         #dnsForm {
-            margin: 20px auto;
-            max-width: 400px;
-            padding: 20px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            width: 30%;
+            padding: 16px;
             align-items: center;
+            margin-top: 32px;
         }
 
         label {
             font-weight: bold;
         }
 
+        strong {
+            color: #1B4965;
+        }
+
         input[type="text"] {
-            width: 90%;
-            padding: 10px;
-            margin-top: 5px;
-            margin-bottom: 10px;
+            background-color: white;
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            margin-bottom: 16px;
             border: 1px solid #ccc;
-            border-radius: 3px;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        input:focus {
+            outline: 2px solid #2ec4b6;
         }
 
         button[type="submit"] {
-            background-color: #007bff;
+            background-color: #2ec4b6;
             color: #fff;
             border: none;
-            padding: 10px 20px;
+            font-weight: 500;
+            padding: 12px 24px;
             cursor: pointer;
-            border-radius: 3px;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         button[type="submit"]:hover {
-            background-color: #0056b3;
+            background-color: #27a094;
+        }
+
+        button[type="submit"]:active {
+            background-color: #1d746b;
         }
 
         #result {
-            margin: 20px auto;
-            min-width: 600px;
-            max-width: 50%;
-            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            width: 60%;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .result-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            font-size: 14px;
+            padding: 16px;
             background-color: #fff;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
+            border-radius: 8px;
             text-align: left;
         }
 
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        li {
-            margin-bottom: 10px;
-        }
     </style>
 </head>
 
 <body>
-    <h1>Consulta DNS</h1>
     <form id="dnsForm">
-        <label for="domain">Domínio:</label>
-        <input type="text" id="domain" required>
+        <img src="./assets/lupa.png">
+        <h1>DNS Lookup</h1>
+        <input type="text" placeholder="Domínio" id="domain" required>
         <button type="submit">Consultar</button>
     </form>
     <div id="result"></div>
@@ -116,24 +143,24 @@
                             resultElement.innerHTML = `<p>Erro na resposta do servidor DNS. Código de resposta: ${data.errorCode}</p>`;
                         }
                     } else {
-                        let infoHTML = `<p><strong>Informações:</strong></p>
-                                          <ul>`;
+                        let infoHTML = `<p><strong>Resultados</strong></p>`;
         
                         data.records.forEach((record) => {
-                            infoHTML += `<li><strong>Tipo de Registro:</strong> ${record.recordType}</li>
-                                         <li><strong>Nome do Domínio:</strong> ${record.domainName}</li>
-                                         <li><strong>Dados:</strong> ${record.data}</li>`;
+                            infoHTML += `<div class="result-item"><div><strong>Tipo de Registro:</strong> ${record.recordType}</div>
+                                         <div><strong>Nome do Domínio:</strong> ${record.domainName}</div>
+                                         <div><strong>Dados:</strong> ${record.data}</div>`;
                             
                             if (record.ipv4) {
-                                infoHTML += `<li><strong>Endereço IPv4:</strong> ${record.ipv4}</li>`;
+                                infoHTML += `<div><strong>Endereço IPv4:</strong> ${record.ipv4}</div>`;
                             }
         
                             if (record.ipv6) {
-                                infoHTML += `<li><strong>Endereço IPv6:</strong> ${record.ipv6}</li>`;
+                                infoHTML += `<div><strong>Endereço IPv6:</strong> ${record.ipv6}</div>`;
                             }
+                            infoHTML += `</div>`;
                         });
         
-                        infoHTML += `</ul>`;
+                        infoHTML += `</div>`;
                         resultElement.innerHTML = infoHTML;
                     }
                 })
